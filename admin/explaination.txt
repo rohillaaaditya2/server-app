@@ -1,0 +1,8 @@
+
+module.exports =mongoose.model('ProductCatg',ProductCatg);// '' iske andar wala model name hai and other is schema variable
+
+var ProductCatg = require('./productcatg.model'); //yeh v model name hai
+
+        State.findOne({"stid":req.params.stid})//doubt andar ke data likna ?
+
+        "dev":"nodemon server.js"  to use nodemon
