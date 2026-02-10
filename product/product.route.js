@@ -2,7 +2,7 @@ const express = require("express");
 const productRoute = express.Router();
 const Product = require("./product.model");
 const multer = require("multer");
-const cloudinary = require("../cloudinary");
+const cloudinary = require("../cloudinary"); ;
 const { createInventoryForNewProduct } = require("./Inventory.route.js");
 
 const storage = multer.memoryStorage();
