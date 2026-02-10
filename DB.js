@@ -1,4 +1,3 @@
-
-      module.exports = {
-        URL : 'mongodb://127.0.0.1:27017/ecommerceDB'
-      }
+module.exports = {
+  URL: process.env.MONGO_URL
+}
