@@ -32,16 +32,23 @@
 
    // UPDATE CITY
 
-     cityRoute.route
-('/update').
-put((req, res)=>{
-    City.updateOne({"ctid":req.body.ctid},{"ctid": req.body.ctid,"ctname":req.body.City.ctname,"stid":req.body.stid,"status":req.body.status}).then(city=>{
-        res.send('city updated successfully');
-        res.end();
+     cityRoute.route('/update').put((req, res) => {
+  City.updateOne(
+    { "ctid": req.body.ctid },
+    {
+      "ctid": req.body.ctid,
+      "ctname": req.body.ctname,
+      "stid": req.body.stid,
+      "status": req.body.status
+    }
+  )
+    .then(city => {
+      res.send("CITY UPDATED SUCCESSFULLY");
+      res.end();
     })
-    .catch((err)=>{
-        res.send(err);
-        res.end();
+    .catch((err) => {
+      res.send(err);
+      res.end();
     });
 });
 
@@ -82,6 +89,17 @@ put((req, res)=>{
         res.end();
    })
       });
+      cityRoute.route('/delete/:ctid').delete((req, res) => {
+  City.updateOne({ "ctid": req.params.ctid }, { "status": 0 })
+    .then(city => {
+      res.send("CITY DISABLED SUCCESSFULLY");
+      res.end();
+    })
+    .catch(err => {
+      res.send(err);
+      res.end();
+    });
+});
             
         // SAERCH STATE BT NAME TO AVOID DUPLICATE ENTRY    
 

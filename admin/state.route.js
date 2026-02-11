@@ -45,15 +45,21 @@
            
          //  DELETE ENABLE OR DISBALE
 
-           stateRoute.route('/delete/:stid').delete((req,res) => {
-            State.updateOne({"stid":req.params.stid},{"status":0}).then(state =>{
-                res.send("STATE DISABLE SUCCESFLLY");
-                res.end();
-            }).catch(err =>{
-                res.send(err);
-                res.end();
-            });
-           });
+                    const handleDeleteButton = () => {
+            if (stid != undefined && stid != "") {
+                axios
+                .delete("https://server-app-xite.onrender.com/state/delete/" + stid)
+                .then((res) => {
+                    alert(res.data);
+                })
+                .catch((err) => {
+                    alert(err);
+                });
+            } else {
+                alert("FILL STATE ID TO DELETE");
+            }
+            };
+
 
            // SHOW ALL USED TO GET ALL DATA FORM MONGODB
 
