@@ -5,9 +5,7 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const cloudinary = require("../cloudinary");
 
-let lastUploadedImage = "";
-
-// MULTER MEMORY STORAGE (for cloud upload)
+// MULTER MEMORY STORAGE
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -35,36 +33,55 @@ function sendGMail(mailto) {
   });
 }
 
-/* CUSTOMER REGISTRATION */
-customerRoute.post("/register", async (req, res) => {
-  try {
-    const { CUserId, CEmail } = req.body;
+/* CUSTOMER REGISTRATION (IMAGE + DATA TOGETHER) */
+customerRoute.post(
+  "/register",
+  upload.single("file"),
+  async (req, res) => {
+    try {
+      let imageUrl = "";
 
-    const customer = new Customer({
-      ...req.body,
-      CPicName: lastUploadedImage,
-    });
+      if (req.file) {
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder: "customers" },
+            (error, result) => {
+              if (error) reject(error);
+              else resolve(result);
+            }
+          );
+          stream.end(req.file.buffer);
+        });
 
-    await customer.save();
+        imageUrl = result.secure_url;
+      }
 
-    // reset image after registration
-    lastUploadedImage = "";
+      const { CUserId, CEmail } = req.body;
 
-    sendGMail(CEmail);
-    res.json({ Message: "REGISTRATION SUCCESSFUL" });
-  } catch (err) {
-    console.error(err);
+      const customer = new Customer({
+        ...req.body,
+        CPicName: imageUrl,
+      });
 
-    if (err.code === 11000) {
-      if (err.keyPattern.CEmail)
-        return res.status(400).json({ Message: "Email already exists" });
-      if (err.keyPattern.CUserId)
-        return res.status(400).json({ Message: "User ID already exists" });
+      await customer.save();
+
+      sendGMail(CEmail);
+
+      res.json({ Message: "REGISTRATION SUCCESSFUL" });
+    } catch (err) {
+      console.error(err);
+
+      if (err.code === 11000) {
+        if (err.keyPattern.CEmail)
+          return res.status(400).json({ Message: "Email already exists" });
+        if (err.keyPattern.CUserId)
+          return res.status(400).json({ Message: "User ID already exists" });
+      }
+
+      res.status(500).json({ Message: "Server error" });
     }
-
-    res.status(500).json({ Message: "Server error" });
   }
-});
+);
 
 /* LOGIN */
 customerRoute.post("/login", async (req, res) => {
@@ -74,6 +91,7 @@ customerRoute.post("/login", async (req, res) => {
     const customer = await Customer.findOne({ CUserId, CUserPass });
     if (!customer)
       return res.status(404).json({ Message: "Invalid credentials" });
+
     res.json(customer);
   } catch (err) {
     console.error(err);
@@ -81,50 +99,15 @@ customerRoute.post("/login", async (req, res) => {
   }
 });
 
-/* SAVE CUSTOMER IMAGE (CLOUDINARY) */
-customerRoute.post(
-  "/savecustomerimage",
-  upload.single("file"),
-  async (req, res) => {
-    try {
-      if (!req.file)
-        return res.status(400).json({ message: "Image upload failed" });
-
-      const result = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "customers" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(req.file.buffer);
-      });
-
-      // store image URL temporarily
-      lastUploadedImage = result.secure_url;
-
-      res.json({
-        message: "Image uploaded successfully",
-        imageUrl: result.secure_url,
-      });
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Cloud upload failed" });
-    }
-  }
-);
-
 /* GET CUSTOMER DETAILS */
 customerRoute.get("/getcustomerdetails/:cid", async (req, res) => {
   try {
     const customer = await Customer.findOne({
       Cid: req.params.cid,
     });
+
     if (!customer)
-      return res
-        .status(404)
-        .json({ Message: "Customer not found" });
+      return res.status(404).json({ Message: "Customer not found" });
 
     res.json(customer);
   } catch (err) {
