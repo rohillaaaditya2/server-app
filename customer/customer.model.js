@@ -1,50 +1,23 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-//     const mongoose = require('mongoose');
-//     const Schema = mongoose.Schema;
-
-//     const Customer = new Schema({
-//           CUserId : {type:String,unique:true},
-//           CUserPass :{type:String},
-//           CustomerName:{type:String},
-//           StId:{type:Number},
-//           CtId:{type:Number},
-//           CAddress:{type:String},
-//           CContact : {type:Number},
-//           CEmail:{type:String,unique:true},
-//          CPicUrl: String,
-//           Cid:{type:Number},
-//           Status:{type:String},
-//           otp:{type:String},
-//           otpExpiry:{type:Date},
-
-//     },
-// {
-//            collection:"Customer"
-// })
- 
-// module.exports = mongoose.model("Customer",Customer);
-
-
-const mongoose = require("mongoose");
-
-const customerSchema = new mongoose.Schema({
-  Cid: Number,
+const Customer = new Schema({
   CUserId: { type: String, unique: true },
-  CUserPass: String,
-  CustomerName: String,
-  CAddress: String,
-  CContact: String,
+  CUserPass: { type: String },
+  CustomerName: { type: String },
+  StId: { type: Number },
+  CtId: { type: Number },
+  CAddress: { type: String },
+  CContact: { type: Number },
   CEmail: { type: String, unique: true },
-
-  // Cloudinary image URL
-  CPicUrl: String,
-
-  StId: Number,
-  CtId: Number,
-  Status: {
-    type: String,
-    default: "Inactive",
-  },
+  CPicUrl: { type: String },   // <-- changed here
+  Cid: { type: Number },
+  Status: { type: String },
+  otp: { type: String },
+  otpExpiry: { type: Date },
+},
+{
+  collection: "Customer"
 });
 
-module.exports = mongoose.model("Customer", customerSchema);
+module.exports = mongoose.model("Customer", Customer);
